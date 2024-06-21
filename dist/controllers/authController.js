@@ -47,7 +47,7 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
                 message: 'Invalid email or password'
             });
         }
-        const token = jsonwebtoken_1.default.sign({ userId: user._id, role: user.role }, config_1.default.jwt_secret, { expiresIn: '1h' });
+        const token = jsonwebtoken_1.default.sign({ userId: user._id, role: user.role }, config_1.default.jwt_secret, { expiresIn: '24h' });
         res.json({
             success: true,
             statusCode: 200,
