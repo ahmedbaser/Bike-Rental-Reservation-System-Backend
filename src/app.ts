@@ -1,13 +1,3 @@
-// import express, {Request, Response} from "express";
-// const app = express()
-
-
-// app.get('/', (req: Request, res: Response) => {
-//   res.send('Hello World this!')
-// })
-
-// export default app;
-
 import express from 'express';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/user';
@@ -24,12 +14,15 @@ app.use('/api/users', userRoutes);
 app.use('/api/bikes', bikeRoutes);
 app.use('/api/rentals', rentalRoutes);
 // Middleware
-app.use(notFound);
-app.use(errorHandler);
+
+
 // Root route
 app.get("/", (req, res) => {
   res.status(200).json({
-    message: "Welcome to the batch-3-assignment3",
+    message: "Welcome to the batch-3-assignment-3",
   });
 });
+app.use(errorHandler);
+app.use(notFound);
+
 export default app;

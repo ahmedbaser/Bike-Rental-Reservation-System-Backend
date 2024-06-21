@@ -1,44 +1,9 @@
-
-
-
-
-
-// this is main file
-
-// import mongoose from 'mongoose';
-// import config from './config';
-//---------------------------------------------//
-// import authRoutes from './routes/auth';
-// import userRoutes from './routes/user';
-// import bikeRoutes from './routes/bike';
-// import rentalRoutes from './routes/rental';
-// import notFound from './middlewares/notFound';
-// import errorHandler from './middlewares/errorHandler';
-// import express from 'express';
-
-// const app = express();
-
-
-
-// app.use(express.json());
-
-// // Routes
-// app.use('/api/auth', authRoutes);
-// app.use('/api/users', userRoutes);
-// app.use('/api/bikes', bikeRoutes);
-// app.use('/api/rentals', rentalRoutes);
-
-// // Middleware
-// app.use(notFound);
-// app.use(errorHandler);
-
-
 import mongoose from 'mongoose';
 import config from './config';
 import app from './app';
 
 const PORT = config.port || 5000;
-const DB_URI = config.db_url || 'mongodb://localhost:27017/bike-rental';
+const DB_URI = config.db_url as string;
 
 mongoose.connect(DB_URI,)
   .then(() => {
