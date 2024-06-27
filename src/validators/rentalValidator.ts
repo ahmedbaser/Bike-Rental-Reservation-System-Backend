@@ -6,6 +6,7 @@ const createRentalSchema = z.object({
   startTime: z.string().min(1)
 });
 
+// here ValidateCreateRental 
 const validateCreateRental = (req: Request, res: Response, next: NextFunction) => {
   try {
     createRentalSchema.parse(req.body);
