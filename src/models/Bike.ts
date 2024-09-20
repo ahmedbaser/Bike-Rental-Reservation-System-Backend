@@ -9,6 +9,7 @@ interface IBike extends Document {
     year: number;
     model: string;
     brand: string;
+    image?: string;
 }
 
 const bikeSchema = new Schema<IBike>({
@@ -19,10 +20,13 @@ const bikeSchema = new Schema<IBike>({
     cc: { type: Number, required: true },
     year: { type: Number, required: true },
     model: { type: String, required: true },
-    brand: { type: String, required: true }
+    brand: { type: String, required: true },
+    image: { type: String, required: false },
 }, { timestamps: true });
 
 const Bike = model<IBike>('Bike', bikeSchema);
 export default Bike;
+
+
 
 

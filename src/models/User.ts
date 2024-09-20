@@ -1,7 +1,3 @@
-
-
-
-
 import { Schema, model, Document } from 'mongoose';
 
 interface IUser extends Document {
@@ -25,3 +21,8 @@ const userSchema = new Schema<IUser>({
 const User = model<IUser>('User', userSchema);
 
 export default User;
+
+
+
+
+

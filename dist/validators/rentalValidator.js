@@ -6,6 +6,7 @@ const createRentalSchema = zod_1.z.object({
     bikeId: zod_1.z.string().min(1),
     startTime: zod_1.z.string().min(1)
 });
+// here ValidateCreateRental 
 const validateCreateRental = (req, res, next) => {
     try {
         createRentalSchema.parse(req.body);

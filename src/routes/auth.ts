@@ -1,6 +1,3 @@
-
-
-
 import express from 'express';
 import { signUp, login } from '../controllers/authController';
 import { validateSignUp, validateLogin } from '../validators/authValidator';

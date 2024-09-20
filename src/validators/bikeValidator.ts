@@ -9,7 +9,8 @@ const createBikeSchema = z.object({
   cc: z.number().min(1),
   year: z.number().min(1900),
   model: z.string().min(1),
-  brand: z.string().min(1)
+  brand: z.string().min(1),
+  image: z.string().optional(),
 });
 
 const updateBikeSchema = z.object({
@@ -20,7 +21,8 @@ const updateBikeSchema = z.object({
   cc: z.number().min(1).optional(),
   year: z.number().min(1900).optional(),
   model: z.string().min(1).optional(),
-  brand: z.string().min(1).optional()
+  brand: z.string().min(1).optional(),
+  image: z.string().min(1).optional()
 });
 
 const validateCreateBike = (req: Request, res: Response, next: NextFunction) => {

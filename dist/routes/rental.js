@@ -9,7 +9,6 @@ const auth_1 = require("../middlewares/auth");
 const rentalValidator_1 = require("../validators/rentalValidator");
 const router = express_1.default.Router();
 router.post('/', auth_1.authenticate, rentalValidator_1.validateCreateRental, rentalController_1.createRental);
-// router.put('/return/:id', authenticate, authorize('admin'), returnBike);
 router.put('/:id/return', auth_1.authenticate, (0, auth_1.authorize)('admin'), rentalController_1.returnBike);
 router.get('/', auth_1.authenticate, rentalController_1.getAllRentalsForUser);
 exports.default = router;

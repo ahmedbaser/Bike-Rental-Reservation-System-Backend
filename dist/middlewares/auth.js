@@ -33,7 +33,7 @@ const authenticate = (req, res, next) => {
 };
 exports.authenticate = authenticate;
 // authorize part start
-const authorize = (role) => {
+const authorize = (roles) => {
     return (req, res, next) => {
         if (!req.user) {
             return res.status(403).json({
@@ -41,8 +41,8 @@ const authorize = (role) => {
                 message: 'Access denied.'
             });
         }
-        if (req.user.role !== role) {
-            console.log(`Role mismatch: expected ${role}, got ${req.user.role}`);
+        if (!roles.includes(req.user.role)) {
+            console.log(`Role mismatch: expected ${roles}, got ${req.user.role}`);
             return res.status(403).json({
                 success: false,
                 message: 'Access denied.'

@@ -10,8 +10,14 @@ const bike_1 = __importDefault(require("./routes/bike"));
 const rental_1 = __importDefault(require("./routes/rental"));
 const notFound_1 = __importDefault(require("./middlewares/notFound"));
 const errorHandler_1 = __importDefault(require("./middlewares/errorHandler"));
+const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
+app.use((0, cors_1.default)({
+    origin: 'http://localhost:5173', // Allow only your frontend's origin
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
+    credentials: true,
+}));
 // Routes
 app.use('/api/auth', auth_1.default);
 app.use('/api/users', user_1.default);
