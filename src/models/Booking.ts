@@ -7,11 +7,15 @@ interface IRental extends Document {
   returnTime: Date | null;
   totalCost: number | null;
   isReturned: boolean;
-  isPaid?: boolean
+  isPaid?: boolean;
+  
 }
 
 export interface IBike extends Document{
+  isAvailable: boolean;
   pricePerHour: number;
+  
+  
   
 }
 

@@ -24,11 +24,12 @@ const createPaymentIntent = async (req: Request, res: Response, next: NextFuncti
       });
     }
 
-    const amount = 100; 
+    // Calculate amount in cents (Stripe expects amount in the smallest currency unit)
+    const amount = rental.totalCost * 100;
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
-      currency: 'usd', 
+      currency: 'usd',
       metadata: { rentalId },
     });
 
@@ -46,9 +47,10 @@ const createPaymentIntent = async (req: Request, res: Response, next: NextFuncti
         message: `Stripe error: ${error.message}`,
       });
     }
-    
+
     next(error);
   }
 };
 
 export { createPaymentIntent };
+

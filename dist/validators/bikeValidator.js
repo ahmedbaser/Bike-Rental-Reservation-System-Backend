@@ -11,7 +11,7 @@ const createBikeSchema = zod_1.z.object({
     year: zod_1.z.number().min(1900),
     model: zod_1.z.string().min(1),
     brand: zod_1.z.string().min(1),
-    image: zod_1.z.string().min(1),
+    image: zod_1.z.string().optional(),
 });
 const updateBikeSchema = zod_1.z.object({
     name: zod_1.z.string().min(1).optional(),

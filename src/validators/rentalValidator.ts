@@ -4,6 +4,7 @@ import { z } from 'zod';
 const createRentalSchema = z.object({
   bikeId: z.string().min(1),
   startTime: z.string().min(1)
+  
 });
 
 // here ValidateCreateRental 
@@ -21,3 +22,10 @@ const validateCreateRental = (req: Request, res: Response, next: NextFunction) =
 };
 
 export { validateCreateRental };
+
+
+
+
+
+
+

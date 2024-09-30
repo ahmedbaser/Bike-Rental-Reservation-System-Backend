@@ -10,7 +10,7 @@ const bikeSchema = new mongoose_1.Schema({
     year: { type: Number, required: true },
     model: { type: String, required: true },
     brand: { type: String, required: true },
-    image: { type: String, required: true },
+    image: { type: String, required: false },
 }, { timestamps: true });
 const Bike = (0, mongoose_1.model)('Bike', bikeSchema);
 exports.default = Bike;
