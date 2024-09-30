@@ -11,18 +11,25 @@ import couponRoutes from './routes/couponRoutes';
 import contactUsSection from './controllers/contactController';
 import bodyParser from 'body-parser';
 
+const app = express();
 
-
-
-
-const app = express()
 app.use(express.json());
-
-app.use(cors());
 app.use(bodyParser.json());
 
+// Specify the frontend domain  want to allow in CORS
+const allowedOrigins = ['https://bike-rental-reservation-system-frontend-eosin.vercel.app'];
 
-
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin like mobile apps or Postman
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'The CORS policy for this site does not allow access from the specified origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    }
+}));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -32,8 +39,6 @@ app.use('/api/rentals', rentalRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api', contactUsSection);
-// Middleware
-
 
 // Root route
 app.get("/", (req, res) => {
@@ -41,6 +46,8 @@ app.get("/", (req, res) => {
     message: "Welcome to the batch-3-assignment-5",
   });
 });
+
+// Error handling middleware
 app.use(errorHandler);
 app.use(notFound);
 
