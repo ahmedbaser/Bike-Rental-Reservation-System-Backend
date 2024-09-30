@@ -17,19 +17,29 @@ app.use(express.json());
 app.use(bodyParser.json());
 
 // Specify the frontend domain  want to allow in CORS
-const allowedOrigins = ['https://bike-rental-reservation-system-frontend-eosin.vercel.app'];
+const allowedOrigins = [
+  'http://localhost:5173', 
+  'https://bike-rental-reservation-system-frontend-eosin.vercel.app'];
 
-app.use(cors({
+  app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin like mobile apps or Postman
+        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
         if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'The CORS policy for this site does not allow access from the specified origin.';
+            const msg = `The CORS policy does not allow access from the specified origin: ${origin}`;
             return callback(new Error(msg), false);
         }
         return callback(null, true);
-    }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],  // Allow these methods
+    allowedHeaders: ['Content-Type', 'Authorization'],      // Allow headers
+    credentials: true                                       // Allow credentials (if needed)
 }));
+
+// Handle preflight OPTIONS requests
+app.options('*', cors());
+
+
 
 // Routes
 app.use('/api/auth', authRoutes);
