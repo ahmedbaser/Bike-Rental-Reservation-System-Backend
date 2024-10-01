@@ -1,8 +1,4 @@
 "use strict";
-// import { Request, Response, NextFunction } from 'express';
-// import mongoose from 'mongoose';
-// import Rental, { IBike, IPopulatedRental } from '../models/Booking';
-// import Bike from '../models/Bike';
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,11 +30,13 @@ const bookBike = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (!bike.isAvailable) {
             return res.status(400).json({ success: false, message: 'Bike is not available' });
         }
+        const estimatedCost = Math.ceil(advancePayment);
         const rental = new Booking_1.default({
             bikeId: bike._id,
             userId: (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId,
             startTime,
             advancePayment,
+            totalCost: estimatedCost,
             status: 'Booked',
             isPaid: false,
         });
@@ -53,41 +51,16 @@ const bookBike = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.bookBike = bookBike;
-// const updateRentalStatus = async (rentalId: string): Promise<void> => {
-//   await Rental.findByIdAndUpdate(rentalId, { isPaid: true });
-// };
-// const handlePayment = async (req: Request, res: Response, next: NextFunction) => {
-//   try {
-//     const { rentalId } = req.params;
-//     await updateRentalStatus(rentalId);
-//     res.status(200).json({
-//       success: true,
-//       message: 'Payment successful, rental status updated',
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+const updateRentalStatus = (rentalId) => __awaiter(void 0, void 0, void 0, function* () {
+    yield Booking_1.default.findByIdAndUpdate(rentalId, { isPaid: true });
+});
 const handlePayment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { rentalId } = req.params;
-        // Fetch the rental by its ID
-        const rental = yield Booking_1.default.findById(rentalId);
-        if (!rental) {
-            return res.status(404).json({ success: false, message: 'Rental not found' });
-        }
-        // Check if the rental is already paid
-        if (rental.isPaid) {
-            return res.status(400).json({ success: false, message: 'Rental already paid' });
-        }
-        // Mark the rental as paid
-        rental.isPaid = true;
-        yield rental.save(); // Save the updated rental
-        // Return a success response
+        yield updateRentalStatus(rentalId);
         res.status(200).json({
             success: true,
             message: 'Payment successful, rental status updated',
-            data: rental, // Send back updated rental data
         });
     }
     catch (error) {
@@ -99,7 +72,6 @@ const returnBike = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     const session = yield mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        // Populate bikeId field to get the full Bike document, not just ObjectId
         const rental = yield Booking_1.default.findById(req.params.id).session(session).populate('bikeId');
         if (!rental || rental.isReturned || !rental.bikeId) {
             return res.status(400).json({
@@ -109,12 +81,19 @@ const returnBike = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         }
         const currentTime = new Date();
         const rentalDuration = (currentTime.getTime() - rental.startTime.getTime()) / 3600000;
-        // Access pricePerHour from the populated bikeId
+        if (rentalDuration < 0) {
+            yield session.abortTransaction();
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid return time. Return time cannot be earlier than start time.'
+            });
+        }
         const totalCost = Math.ceil(rentalDuration * rental.bikeId.pricePerHour);
+        const remainingBalance = totalCost - rental.advancePayment;
         rental.returnTime = currentTime;
         rental.totalCost = totalCost;
         rental.isReturned = true;
-        // Make sure the bike is marked as available
+        rental.isPaid = false;
         rental.bikeId.isAvailable = true;
         yield rental.save({ session });
         yield rental.bikeId.save({ session });
@@ -123,7 +102,7 @@ const returnBike = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             success: true,
             statusCode: 200,
             message: 'Bike returned successfully',
-            data: Object.assign(Object.assign({}, rental.toObject()), { totalCost, isPaid: rental.isPaid })
+            data: { rental, remainingBalance }
         });
     }
     catch (error) {
@@ -181,14 +160,12 @@ const getAllRentalsForUser = (req, res, next) => __awaiter(void 0, void 0, void 
 exports.getAllRentalsForUser = getAllRentalsForUser;
 const getAllRentalsForAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Populate bikeId to get the full Bike document
         const rentals = yield Booking_1.default.find().populate('bikeId').lean();
         const validRentals = rentals.filter(rental => rental.bikeId !== null);
         validRentals.forEach(rental => {
             if (rental.bikeId) {
                 if (rental.returnTime) {
                     const rentalDuration = (new Date(rental.returnTime).getTime() - new Date(rental.startTime).getTime()) / 3600000;
-                    // Access pricePerHour from the populated bikeId
                     rental.totalCost = Math.ceil(rentalDuration * rental.bikeId.pricePerHour);
                 }
                 else {

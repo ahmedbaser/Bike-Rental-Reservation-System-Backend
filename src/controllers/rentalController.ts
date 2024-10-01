@@ -6,6 +6,7 @@ import Bike from '../models/Bike';
 
 
 
+
 const bookBike = async (req: Request, res: Response) => {
   try {
     const { bikeId, startTime, advancePayment } = req.body;
@@ -23,11 +24,14 @@ const bookBike = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Bike is not available' });
     }
 
+    const estimatedCost = Math.ceil(advancePayment);  
+
     const rental = new Rental({
       bikeId: bike._id,
       userId: req.user?.userId,
       startTime,
       advancePayment,
+      totalCost: estimatedCost, 
       status: 'Booked',
       isPaid: false,
     });
@@ -43,7 +47,6 @@ const bookBike = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
-
 
 
 const updateRentalStatus = async (rentalId: string): Promise<void> => {
@@ -86,26 +89,46 @@ const returnBike = async (req: Request, res: Response, next: NextFunction) => {
     const currentTime = new Date();
     const rentalDuration = (currentTime.getTime() - rental.startTime.getTime()) / 3600000;
 
+    if (rentalDuration < 0) {
+      await session.abortTransaction();
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid return time. Return time cannot be earlier than start time.'
+      });
+    }
+    
     const totalCost = Math.ceil(rentalDuration * rental.bikeId.pricePerHour);
+    const remainingBalance = totalCost - rental.advancePayment;
 
     rental.returnTime = currentTime;
     rental.totalCost = totalCost;
     rental.isReturned = true;
-
-
     rental.isPaid = false;
 
+    // Make the bike available again
     rental.bikeId.isAvailable = true;
 
     await rental.save({ session });
     await rental.bikeId.save({ session });
 
     await session.commitTransaction();
+
+    
     res.json({
       success: true,
       statusCode: 200,
       message: 'Bike returned successfully',
-      data: rental
+      data: {
+        rental: {
+          id: rental._id,
+          bikeId: rental.bikeId._id,
+          returnTime: rental.returnTime,
+          totalCost: rental.totalCost,
+          isReturned: rental.isReturned,
+          isPaid: rental.isPaid,
+          remainingBalance: remainingBalance,
+        },
+      }
     });
   } catch (error) {
     await session.abortTransaction();
@@ -114,7 +137,6 @@ const returnBike = async (req: Request, res: Response, next: NextFunction) => {
     session.endSession();
   }
 };
-
 
 
 

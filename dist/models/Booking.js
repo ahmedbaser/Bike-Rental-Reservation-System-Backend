@@ -6,9 +6,10 @@ const rentalSchema = new mongoose_1.Schema({
     bikeId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Bike', required: true },
     startTime: { type: Date, required: true },
     returnTime: { type: Date, default: null },
-    totalCost: { type: Number, default: 0 },
+    totalCost: { type: Number, default: null },
     isReturned: { type: Boolean, default: false },
     isPaid: { type: Boolean, default: false },
+    advancePayment: { type: Number, default: 0 },
 }, { timestamps: true });
 const Rental = (0, mongoose_1.model)('Rental', rentalSchema);
 exports.default = Rental;

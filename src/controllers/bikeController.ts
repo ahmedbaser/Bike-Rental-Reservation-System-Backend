@@ -116,3 +116,23 @@ const searchBikes = async (req: Request, res: Response) => {
 export { createBike, getBikeById,getAllBikes, updateBike, deleteBike, searchBikes };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

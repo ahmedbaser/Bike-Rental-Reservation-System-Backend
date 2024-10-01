@@ -24,16 +24,17 @@ const createPaymentIntent = (req, res, next) => __awaiter(void 0, void 0, void 0
         if (!rental || rental.isReturned) {
             return res.status(400).json({
                 success: false,
-                message: 'Rental not found or already returned'
+                message: 'Rental not found or already returned',
             });
         }
-        if (rental.totalCost === null || rental.totalCost === undefined) {
+        console.log('Rental Total Cost:', rental.totalCost);
+        if (rental.totalCost === null || rental.totalCost === undefined || rental.totalCost <= 0) {
             return res.status(400).json({
                 success: false,
-                message: 'Total cost is not available for this rental'
+                message: 'Total cost is not available or is invalid for this rental',
             });
         }
-        const amount = 100;
+        const amount = rental.totalCost * 100;
         const paymentIntent = yield stripe.paymentIntents.create({
             amount,
             currency: 'usd',
@@ -47,7 +48,6 @@ const createPaymentIntent = (req, res, next) => __awaiter(void 0, void 0, void 0
         });
     }
     catch (error) {
-        // Handle Stripe-specific errors
         if (error instanceof stripe_1.default.errors.StripeError) {
             return res.status(500).json({
                 success: false,

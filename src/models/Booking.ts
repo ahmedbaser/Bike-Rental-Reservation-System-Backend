@@ -7,6 +7,7 @@ interface IRental extends Document {
   returnTime: Date | null;
   totalCost: number | null;
   isReturned: boolean;
+  advancePayment: number; 
   isPaid?: boolean;
   
 }
@@ -14,8 +15,6 @@ interface IRental extends Document {
 export interface IBike extends Document{
   isAvailable: boolean;
   pricePerHour: number;
-  
-  
   
 }
 
@@ -31,9 +30,10 @@ const rentalSchema = new Schema<IRental>({
   bikeId: { type: Schema.Types.ObjectId, ref: 'Bike', required: true },
   startTime: { type: Date, required: true },
   returnTime: { type: Date, default: null },
-  totalCost: { type: Number, default: 0 },
+  totalCost: { type: Number, default: null },
   isReturned: { type: Boolean, default: false },
-  isPaid: { type: Boolean, default: false },  
+  isPaid: { type: Boolean, default: false }, 
+  advancePayment: { type: Number, default: 0 },  
 },{ timestamps: true });
 
 const Rental = model<IRental>('Rental', rentalSchema);
