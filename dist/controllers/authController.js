@@ -17,10 +17,12 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = __importDefault(require("../models/User"));
 const config_1 = __importDefault(require("../config"));
-// singUp part start
+// Signup part
 const signUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, email, password, phone, address, role } = req.body;
+        const { name, email, password, phone, address } = req.body;
+        // Automatically assign the "USER" role
+        const role = "user";
         const hashedPassword = yield bcrypt_1.default.hash(password, 10);
         const user = new User_1.default({ name, email, password: hashedPassword, phone, address, role });
         yield user.save();
@@ -28,7 +30,14 @@ const signUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
             success: true,
             statusCode: 201,
             message: 'User registered successfully',
-            data: user
+            data: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                address: user.address,
+                role: user.role,
+            }
         });
     }
     catch (error) {
@@ -36,7 +45,6 @@ const signUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.signUp = signUp;
-// login part start
 const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
@@ -53,7 +61,14 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
             statusCode: 200,
             message: 'User logged in successfully',
             token,
-            data: user
+            data: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                address: user.address,
+                role: user.role,
+            }
         });
     }
     catch (error) {

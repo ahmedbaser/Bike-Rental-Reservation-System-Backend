@@ -18,7 +18,8 @@ app.use(bodyParser.json());
 
 
 
-const allowedOrigins = ['https://bike-rental-reservation-system-frontend-eosin.vercel.app'
+const allowedOrigins = ['https://bike-rental-reservation-system-frontend-eosin.vercel.app',
+  'http://localhost:5173'
 ];
 
 app.use(cors({

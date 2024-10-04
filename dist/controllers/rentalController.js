@@ -68,11 +68,67 @@ const handlePayment = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.handlePayment = handlePayment;
+// const returnBike = async (req: Request, res: Response, next: NextFunction) => {
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+//   try {
+//     const rental = await Rental.findById(req.params.id).session(session).populate<{ bikeId: IBike }>('bikeId');
+//     if (!rental || rental.isReturned || !rental.bikeId) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Rental not found or already returned'
+//       });
+//     }
+//     const currentTime = new Date();
+//     const rentalDuration = (currentTime.getTime() - rental.startTime.getTime()) / 3600000;
+//     if (rentalDuration < 0) {
+//       await session.abortTransaction();
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Invalid return time. Return time cannot be earlier than start time.'
+//       });
+//     }
+//     const totalCost = Math.ceil(rentalDuration * rental.bikeId.pricePerHour);
+//     const remainingBalance = totalCost - rental.advancePayment;
+//     rental.returnTime = currentTime;
+//     rental.totalCost = totalCost;
+//     rental.isReturned = true;
+//     rental.isPaid = false;
+//     // Make the bike available again
+//     rental.bikeId.isAvailable = true;
+//     await rental.save({ session });
+//     await rental.bikeId.save({ session });
+//     await session.commitTransaction();
+//     res.json({
+//       success: true,
+//       statusCode: 200,
+//       message: 'Bike returned successfully',
+//       data: {
+//         rental: {
+//           id: rental._id,
+//           bikeId: rental.bikeId._id,
+//           returnTime: rental.returnTime,
+//           totalCost: rental.totalCost,
+//           isReturned: rental.isReturned,
+//           isPaid: rental.isPaid,
+//           remainingBalance: remainingBalance,
+//         },
+//       }
+//     });
+//   } catch (error) {
+//     await session.abortTransaction();
+//     next(error);
+//   } finally {
+//     session.endSession();
+//   }
+// };
 const returnBike = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const session = yield mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        const rental = yield Booking_1.default.findById(req.params.id).session(session).populate('bikeId');
+        const rental = yield Booking_1.default.findById(req.params.id)
+            .session(session)
+            .populate('bikeId');
         if (!rental || rental.isReturned || !rental.bikeId) {
             return res.status(400).json({
                 success: false,
@@ -90,19 +146,31 @@ const returnBike = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         }
         const totalCost = Math.ceil(rentalDuration * rental.bikeId.pricePerHour);
         const remainingBalance = totalCost - rental.advancePayment;
+        // Update return time, total cost, and mark bike as returned, but keep isPaid = false
         rental.returnTime = currentTime;
         rental.totalCost = totalCost;
-        rental.isReturned = true;
-        rental.isPaid = false;
-        rental.bikeId.isAvailable = true;
+        rental.isReturned = true; // Mark the bike as returned
+        rental.isPaid = false; // Keep payment as false for now
+        rental.bikeId.isAvailable = true; // Make the bike available again
         yield rental.save({ session });
         yield rental.bikeId.save({ session });
         yield session.commitTransaction();
+        // Respond with the updated rental information
         res.json({
             success: true,
             statusCode: 200,
             message: 'Bike returned successfully',
-            data: { rental, remainingBalance }
+            data: {
+                rental: {
+                    id: rental._id,
+                    bikeId: rental.bikeId._id,
+                    returnTime: rental.returnTime,
+                    totalCost: rental.totalCost,
+                    isReturned: rental.isReturned,
+                    isPaid: rental.isPaid, // Payment is still false
+                    remainingBalance: remainingBalance,
+                },
+            }
         });
     }
     catch (error) {

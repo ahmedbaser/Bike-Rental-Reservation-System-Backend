@@ -18,7 +18,8 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use(body_parser_1.default.json());
-const allowedOrigins = ['https://bike-rental-reservation-system-frontend-eosin.vercel.app'
+const allowedOrigins = ['https://bike-rental-reservation-system-frontend-eosin.vercel.app',
+    'http://localhost:5173'
 ];
 app.use((0, cors_1.default)({
     origin: allowedOrigins,
